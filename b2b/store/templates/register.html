@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Register</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Create a new user account</p>
+        </div>
+    </div>
+</header>
+
+<br><br>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+           
+            <!-- Registration Form Start -->
+            <form method="POST" action="{% url 'register' %}">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <label  class="form-label">Username</label>
+                {{ form.username }} <br>
+
+                <!-- Email Field -->
+                <label  class="form-label">E-mail</label>
+                {{ form.email }} <br>
+
+                <!-- First Name Field -->
+                <label  class="form-label">First Name</label>
+                {{ form.first_name }} <br>
+
+                <!-- Last Name Field -->
+                <label  class="form-label">Last Name</label>
+                {{ form.last_name }} <br>
+
+                <!-- Password Field -->
+                <div class="mb-3 position-relative">
+                    <label for="id_password1" class="form-label">Password</label>
+                    <div class="input-group">
+                        {{ form.password1 }}
+                        <button type="button" class="btn btn-outline-secondary" id="toggle-password" style="cursor: pointer;">
+                            <i class="bi bi-eye" id="password-icon"></i>
+                        </button>
+                    </div>
+                    <!-- Password Validation Conditions -->
+                    <div id="password-feedback" class="text-muted small mt-2">
+                        <ul>
+                            <li id="length-condition">At least 8 characters</li>
+                            <li id="uppercase-condition">At least one uppercase letter</li>
+                            <li id="lowercase-condition">At least one lowercase letter</li>
+                            <li id="digit-condition">At least one number</li>
+                            <li id="special-condition">At least one special character</li>
+                        </ul>
+                    </div>
+                    <!-- Green Checkmark -->
+                    <span id="password-checkmark" style="display: none; color: green; position: absolute; top: 50%; right: 10px; transform: translateY(-50%); font-size: 1.5rem;">
+                        &#10003;
+                    </span>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="mb-3 position-relative">
+                    <label for="id_password2" class="form-label">Confirm Password</label>
+                    <div class="input-group">
+                        {{ form.password2 }}
+                        <button type="button" class="btn btn-outline-secondary" id="toggle-confirm-password" style="cursor: pointer;">
+                            <i class="bi bi-eye" id="confirm-password-icon"></i>
+                        </button>
+                    </div>
+                    <!-- Green Checkmark -->
+                    
+                </div>
+                
+                
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-secondary">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br><br>
+
+
+
+<!-- Include Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Password Toggle and Validation Logic -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const passwordField = document.querySelector('#id_password1');
+    const confirmPasswordField = document.querySelector('#id_password2');
+    const togglePasswordButton = document.getElementById('toggle-password');
+    const toggleConfirmPasswordButton = document.getElementById('toggle-confirm-password');
+    const passwordIcon = document.getElementById('password-icon');
+    const confirmPasswordIcon = document.getElementById('confirm-password-icon');
+    const passwordCheckmark = document.getElementById('password-checkmark');
+    const confirmPasswordCheckmark = document.getElementById('confirm-password-checkmark');
+
+    const feedbackConditions = {
+        length: document.getElementById('length-condition'),
+        uppercase: document.getElementById('uppercase-condition'),
+        lowercase: document.getElementById('lowercase-condition'),
+        digit: document.getElementById('digit-condition'),
+        special: document.getElementById('special-condition'),
+    };
+
+    // Toggle visibility for password field
+    togglePasswordButton.addEventListener('click', () => {
+        const passwordFieldType = passwordField.type === 'password' ? 'text' : 'password';
+        passwordField.type = passwordFieldType;
+
+        // Toggle icon (eye and eye-slash)
+        if (passwordField.type === 'password') {
+            passwordIcon.classList.remove('bi-eye-slash');
+            passwordIcon.classList.add('bi-eye');
+        } else {
+            passwordIcon.classList.remove('bi-eye');
+            passwordIcon.classList.add('bi-eye-slash');
+        }
+    });
+
+    // Toggle visibility for confirm password field
+    toggleConfirmPasswordButton.addEventListener('click', () => {
+        const confirmPasswordFieldType = confirmPasswordField.type === 'password' ? 'text' : 'password';
+        confirmPasswordField.type = confirmPasswordFieldType;
+
+        // Toggle icon (eye and eye-slash)
+        if (confirmPasswordField.type === 'password') {
+            confirmPasswordIcon.classList.remove('bi-eye-slash');
+            confirmPasswordIcon.classList.add('bi-eye');
+        } else {
+            confirmPasswordIcon.classList.remove('bi-eye');
+            confirmPasswordIcon.classList.add('bi-eye-slash');
+        }
+    });
+
+    // Password validation logic
+    passwordField.addEventListener('input', () => {
+        const password = passwordField.value;
+        let allConditionsMet = true;
+
+        // Check each condition
+        feedbackConditions.length.classList.toggle('text-success', password.length >= 8);
+        allConditionsMet = allConditionsMet && password.length >= 8;
+
+        feedbackConditions.uppercase.classList.toggle('text-success', /[A-Z]/.test(password));
+        allConditionsMet = allConditionsMet && /[A-Z]/.test(password);
+
+        feedbackConditions.lowercase.classList.toggle('text-success', /[a-z]/.test(password));
+        allConditionsMet = allConditionsMet && /[a-z]/.test(password);
+
+        feedbackConditions.digit.classList.toggle('text-success', /\d/.test(password));
+        allConditionsMet = allConditionsMet && /\d/.test(password);
+
+        feedbackConditions.special.classList.toggle('text-success', /[!@#$%^&*(),.?":{}|<>]/.test(password));
+        allConditionsMet = allConditionsMet && /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        // Show green checkmark if all conditions are met
+        if (allConditionsMet) {
+            passwordCheckmark.style.display = 'inline';
+        } else {
+            passwordCheckmark.style.display = 'none';
+        }
+    });
+
+    // Confirm password validation
+    confirmPasswordField.addEventListener('input', () => {
+        if (confirmPasswordField.value === passwordField.value && confirmPasswordField.value.length > 0) {
+            confirmPasswordCheckmark.style.display = 'inline';
+        } else {
+            confirmPasswordCheckmark.style.display = 'none';
+        }
+    });
+});
+
+</script>
+
+<!-- Add Bootstrap Icons for eye toggle -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}

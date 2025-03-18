@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="fw-bolder mb-4 text-center text-primary">Browse All Categories</h2>
+                <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-4 justify-content-center">
+                    {% for category in categories %}
+                    <div class="col mb-5">
+                        <div class="card h-100 border-0 shadow-lg rounded">
+                            <div class="card-body p-4 d-flex">
+                                <!-- Category Image on Left (40%) -->
+                                <div class="category-image" style="flex: 0 0 40%; padding-right: 1rem;">
+                                    {% if category.image %}
+                                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid rounded" style="max-height: 250px; object-fit: cover;">
+                                    {% else %}
+                                    <img src="{% static 'default-category-image.jpg' %}" alt="Default Image" class="img-fluid rounded" style="max-height: 250px; object-fit: cover;">
+                                    {% endif %}
+                                </div>
+
+                                <!-- Category and Subcategory Content on Right (60%) -->
+                                <div class="category-content" style="flex: 0 0 60%;">
+                                    <!-- Category Link and Name -->
+                                    <a href="{% url 'catfilter' category.id %}?searched={{ searched|default:'' }}&location={{ current_location|default:'' }}" class="text-decoration-none text-dark">
+                                        <!-- <i class="{{ category.icon }} p-3 mb-3" style="font-size: 2.5rem; color: black;"></i> -->
+                                        <h5 class="card-title text-dark mb-3 category-name">{{ category.name }}</h5>
+                                    </a>
+
+                                    <!-- Subcategory list -->
+                                    <div class="subcategories">
+                                        <ul class="list-unstyled">
+                                            {% if category.subcategories.all %}
+                                            {% for subcategory in category.subcategories.all %}
+                                            <li>
+                                                <a href="{% url 'subcategory_view' subcategory.id %}?location={{ current_location }}&searched={{ searched|default:'' }}" 
+                                                   class="text-decoration-none text-muted d-block mb-2 subcategory-link">{{ subcategory.name }}</a>
+                                            </li>
+                                            {% endfor %}
+                                            {% else %}
+                                            <li><span class="text-muted">No subcategories available</span></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block styles %}
+<style>
+    .category-name:hover {
+        color: #007bff;
+        cursor: pointer;
+    }
+
+    .subcategories a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    .card-title {
+        font-weight: bold;
+    }
+
+    .subcategories li {
+        font-size: 0.9rem;
+    }
+
+    .subcategories li span {
+        font-style: italic;
+    }
+
+    .category-image {
+        flex-shrink: 0;
+        width: 100%;
+    }
+
+    .category-content {
+        flex-grow: 1;
+    }
+
+    .card-body {
+        display: flex;
+        align-items: center;
+    }
+
+    .subcategory-link:hover {
+        color: #007bff;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+{% endblock %}

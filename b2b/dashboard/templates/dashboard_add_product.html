@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Add Your Product</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Welcome Admin, You can add your Product here...</p>
+        </div>
+    </div>
+</header>
+<br><br>
+<div class="container">
+    <h2 style="text-align: center;">Add Product</h2>
+    <form method="POST" action="{% url 'dashboard:dashboard_add_product' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <hr>
+        <h3 style="text-align: center;">Add Custom Attributes</h3>
+        <div id="content">
+            <div id="attribute-form">
+                <div class="attribute-row">
+                    <input type="text" name="attribute_name[]" placeholder="Attribute Name" class="form-control" required>
+                    <input type="text" name="attribute_value[]" placeholder="Attribute Value" class="form-control" required>
+                    <button type="button" class="remove-row btn btn-danger">Remove</button>
+                </div>
+            </div>
+            <button type="button" id="add-row" class="btn btn-success mt-3">Add Attribute</button>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary mt-4">Submit</button>
+    </form>
+</div>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+    .attribute-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    #content {
+        background: lightblue;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+    input, select, textarea {
+        margin-bottom: 15px;
+    }
+    button {
+        cursor: pointer;
+    }
+    .btn-danger {
+        margin-left: 10px;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const addRowButton = document.getElementById("add-row");
+        const attributeForm = document.getElementById("attribute-form");
+
+        addRowButton.addEventListener("click", function () {
+            const newRow = document.createElement("div");
+            newRow.classList.add("attribute-row");
+            newRow.innerHTML = `
+                <input type="text" name="attribute_name[]" placeholder="Attribute Name" class="form-control" required>
+                <input type="text" name="attribute_value[]" placeholder="Attribute Value" class="form-control" required>
+                <button type="button" class="remove-row btn btn-danger">Remove</button>
+            `;
+            attributeForm.appendChild(newRow);
+
+            // Add event listener for the new "Remove" button
+            newRow.querySelector(".remove-row").addEventListener("click", function () {
+                newRow.remove();
+            });
+        });
+
+        // Attach event listener to the initial "Remove" button
+        document.querySelectorAll(".remove-row").forEach((button) => {
+            button.addEventListener("click", function () {
+                button.parentElement.remove();
+            });
+        });
+    });
+</script>
+<br><br>
+{% endblock %}

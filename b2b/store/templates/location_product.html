@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+
+    <!-- Section: City Header -->
+    <section class="city-header text-center mb-5">
+        <h2 class="display-4 text-dark font-weight-bold">Explore Categories in {{ city.name }}</h2>
+        <p class="lead text-muted">Browse through the categories and subcategories available in this city. Find exactly what you need.</p>
+    </section>
+
+    <!-- Section: Categories -->
+    <section class="row">
+        <!-- Categories Column -->
+        <div class="col-12">
+            <div class="categories-section d-flex flex-wrap">
+                {% for category in categories %}
+                    <div class="d-flex w-100 mb-4 align-items-start">
+                        <!-- Category Card -->
+                        <div class="card shadow-sm border-light category-card" style="width: 18rem;">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.name }}" style="height: 250px;">
+                            {% else %}
+                                <img src="{% static 'images/default-category.jpg' %}" class="card-img-top" alt="Default Image">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="text-center font-weight-bold">
+                                    <a href="{% url 'products_filter' location=city.id category_id=category.id %}" class="text-dark">
+                                        {{ category.name }}
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <!-- Subcategories -->
+                        <div class="subcategory-list flex-grow-1 ml-4">
+                            {% if category.subcategories.all %}
+                                <div class="mt-3 d-flex flex-wrap">
+                                    {% for subcategory in category.subcategories.all %}
+                                        <div class="subcategory-card mr-3 mb-2 p-2">
+                                            {% if subcategory.image %}
+                                                <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" class="img-thumbnail" style="height: 100px; width: 100px; object-fit: cover;">
+                                            {% else %}
+                                                <img src="{% static 'images/default-subcategory.jpg' %}" alt="Default Image" class="img-thumbnail" style="height: 100px; width: 100px; object-fit: cover;">
+                                            {% endif %}
+                                            <a href="{% url 'products_filter_by_subcategory' location=city.id category_id=category.id subcategory_id=subcategory.id %}" class="d-block text-center mt-2 text-dark">
+                                                {{ subcategory.name }}
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mt-2">No subcategories available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Products -->
+    
+</div>
+
+{% endblock %}
+
+<style>
+    /* Ensure subcategories are hidden by default */
+    .category-card .subcategory-list {
+        display: none;
+    }
+
+    /* Show subcategories when hovering over the category card */
+    .category-card:hover .subcategory-list {
+        display: block;
+    }
+
+    /* Optional: You can also add some animation for a smoother transition */
+    .category-card .subcategory-list {
+        margin-top: 10px;
+        display: none;
+        transition: opacity 0.3s ease;
+    }
+</style>

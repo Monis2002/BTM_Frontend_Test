@@ -1,0 +1,817 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <!-- Header-->
+    <header class="bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder">Shop in style</h1>
+                <p class="lead fw-normal text-white-50 mb-0">With this shop homepage template</p>
+            </div>
+        </div>
+    </header>
+    {% if festival %}
+    <div class="container px-4 px-lg-5 my-5 center-div">
+        <a href="#fest" class="btn glowing-blink">
+            🎉 Shop {{ festival.name }} Deals Now!
+        </a>
+    </div>
+{% endif %}
+
+    <!-- Main Section -->
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row">
+                <!-- Categories Sidebar -->
+                <div class="col-lg-3 mb-5">
+                    <div>
+                        <!-- Location Filter -->
+                        <br>
+                        <!-- Categories Sidebar -->
+                        <div class="sidebar">
+                            <i class="fa-solid fa-list p-3" style="font-size: 1.7rem;"></i>
+                            <!-- Category List -->
+                            <ul class="categories-list">
+                                <li class="category-item all-categories">
+                                    <a href="/" style="text-decoration: none; font-weight: bold; font-size: 1.1rem;">All Categories</a>
+                                </li>
+                                {% for category in categories %}
+                                <li class="category-item ">
+                                    <a href="{% url 'catfilter' category.id %}?searched={{ searched|default:'' }}&location={{ current_location|default:'' }}">
+                                        <i class="{{ category.icon }} p-2" style="font-size: 1.4rem;"></i>
+                                        
+                                        {{ category.name }}
+                                    </a>
+                                    
+                                   <div class="subcategory-menu">
+                                        <ul>
+                                            {% if category.subcategories.all %}
+                                            {% for subcategory in category.subcategories.all %}
+                                            <li><a href="{% url 'subcategory_view' subcategory.id %}?location={{ current_location }}&searched={{ searched|default:'' }}">{{ subcategory.name }}</a></li>
+                                            {% endfor %}
+                                            {% else %}
+                                            <h6 class="fw-bolder mb-3 text-center">Not Available</h6>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                                <li class="category-item all-categories">
+                                    <a href="{% url 'view_categories' %}" style="text-decoration: none; font-weight: bold; font-size: 1.1rem;">View All Categories</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                
+                <div class="col-lg-12">
+                    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                        {% for product in products|slice:":8" %}
+                        <div class="col mb-5">
+                            <div class="card h-100">
+                                <!-- Product image-->
+                                <img class="card-img-top" src="{{ product.image.url }}" alt="..." />
+                                <!-- Product details-->
+                                <div class="card-body p-4">
+                                    <div class="text-center">
+                                        <!-- Product name-->
+                                        <h5 class="fw-bolder">{{ product.name }}</h5>
+                                        <h3 class="fw-bolder">{{ product.category }}</h3>
+                                        <!-- Product price-->
+                                        $ {{ product.price }}
+                                        <br>
+                                        <p class="mt-2">
+                                            <strong>Seller:</strong> {{ product.created_by.username }}<br>
+                                            <strong>City:</strong> {{ product.created_by.profile.city|default:"N/A" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- Product actions-->
+                                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                    <div class="text-center">
+                                        <div class="d-inline-flex gap-3">
+                                            <!-- Send Enquiry Button -->
+                                            {% if user.is_authenticated %}
+                                                <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark btn-sm mt-auto">Send Enquiry</a>
+                                            {% else %}
+                                                <button class="btn btn-outline-dark btn-sm mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                                            {% endif %}
+                                
+                                            <!-- View Number Button -->
+                                           <a class="btn btn-outline-dark btn-sm mt-auto" href="{% url 'product' product.id %}">
+                                             View Number
+                                           </a>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="new-arrivals mt-4">
+        <div class="container">
+           
+                {% if recent_products %}
+                <h2 class="text-center">Newly Arrived Products</h2>
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-2 row-cols-xl-5 justify-content-center">
+                    {% for product in recent_products|slice:":5" %}
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <!-- Product image-->
+                            <img class="card-img-top" src="{{ product.image.url }}" alt="..." />
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+                                    <h5 class="fw-bolder">{{ product.name }}</h5>
+                                    <h3 class="fw-bolder">{{ product.category }}</h3>
+                                    <!-- Product price-->
+                                    $ {{ product.price }}
+                                    <br>
+                                    <p class="mt-2">
+                                        <strong>Seller:</strong> {{ product.created_by.username }}<br>
+                                        <strong>City:</strong> {{ product.created_by.profile.city|default:"N/A" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Product actions-->
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center">
+                                    <div class="d-inline-flex gap-3">
+                                        <!-- Send Enquiry Button -->
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark btn-sm mt-auto">Send Enquiry</a>
+                                        {% else %}
+                                            <button class="btn btn-outline-dark btn-sm mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                                        {% endif %}
+                            
+                                        <!-- View Number Button -->
+                                 
+                                            <a class="btn btn-outline-dark btn-sm mt-auto" href="{% url 'product' product.id %}">
+                                                View Number
+                                            </a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    
+
+    {% if not category and not search_query %}
+    <section>
+        <div class="container mt-5">
+            <!-- Summer Products -->
+            <div class="season-section">
+                {% if summer_products %}
+                    <h2 class="text-center">Summer Products</h2>
+                {% endif %}
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                    {% for product in summer_products|slice:":4" %}
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <!-- Product image-->
+                            <img class="card-img-top" src="{{ product.image.url }}" alt="..." />
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+                                    <h5 class="fw-bolder">{{ product.name }}</h5>
+                                    <h3 class="fw-bolder">{{ product.category }}</h3>
+                                    <!-- Product price-->
+                                    $ {{ product.price }}
+                                    <br>
+                                    <p class="mt-2">
+                                        <strong>Seller:</strong> {{ product.created_by.username }}<br>
+                                        <strong>City:</strong> {{ product.created_by.profile.city|default:"N/A" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Product actions-->
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center">
+                                    <div class="d-inline-flex gap-3">
+                                        <!-- Send Enquiry Button -->
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark btn-sm mt-auto">Send Enquiry</a>
+                                        {% else %}
+                                            <button class="btn btn-outline-dark btn-sm mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                                        {% endif %}
+                            
+                                        <!-- View Number Button -->
+                                        
+                                            <a class="btn btn-outline-dark btn-sm mt-auto" href="{% url 'product' product.id %}">
+                                                View Number
+                                            </a>
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Winter Products -->
+            <div class="season-section">
+                {% if winter_products %}
+                    <h2 class="text-center">Winter Products</h2>
+                {% endif %}
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                    {% for product in winter_products|slice:":4" %}
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <!-- Product image-->
+                            <img class="card-img-top" src="{{ product.image.url }}" alt="..." />
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+                                    <h5 class="fw-bolder">{{ product.name }}</h5>
+                                    <h3 class="fw-bolder">{{ product.category }}</h3>
+                                    <!-- Product price-->
+                                    $ {{ product.price }}
+                                    <br>
+                                    <p class="mt-2">
+                                        <strong>Seller:</strong> {{ product.created_by.username }}<br>
+                                        <strong>City:</strong> {{ product.created_by.profile.city|default:"N/A" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Product actions-->
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center">
+                                    <div class="d-inline-flex gap-3">
+                                        <!-- Send Enquiry Button -->
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark btn-sm mt-auto">Send Enquiry</a>
+                                        {% else %}
+                                            <button class="btn btn-outline-dark btn-sm mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                                        {% endif %}
+                            
+                                        <!-- View Number Button -->
+                                        
+                                            <a class="btn btn-outline-dark btn-sm mt-auto" href="{% url 'product' product.id %}">
+                                                View Number
+                                            </a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Rainy Products -->
+            <div class="season-section">
+                {% if rainy_products %}
+                    <h2 class="text-center">Rainy Products</h2>
+                {% endif %}
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                    {% for product in rainy_products|slice:":4" %}
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <!-- Product image-->
+                            <img class="card-img-top" src="{{ product.image.url }}" alt="..." />
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+                                    <h5 class="fw-bolder">{{ product.name }}</h5>
+                                    <h3 class="fw-bolder">{{ product.category }}</h3>
+                                    <!-- Product price-->
+                                    $ {{ product.price }}
+                                    <br>
+                                    <p class="mt-2">
+                                        <strong>Seller:</strong> {{ product.created_by.username }}<br>
+                                        <strong>City:</strong> {{ product.created_by.profile.city|default:"N/A" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Product actions-->
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center">
+                                    <div class="d-inline-flex gap-3">
+                                        <!-- Send Enquiry Button -->
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark btn-sm mt-auto">Send Enquiry</a>
+                                        {% else %}
+                                            <button class="btn btn-outline-dark btn-sm mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                                        {% endif %}
+                            
+                                        <!-- View Number Button -->
+                                        
+                                            <a class="btn btn-outline-dark btn-sm mt-auto" href="{% url 'product' product.id %}">
+                                                View Number
+                                            </a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Festival Section -->
+    <section id="fest">
+        {% if festival %}
+        <div class="festival-banner center">
+            <img src="{{ festival.banner_image.url }}" alt="{{ festival.name }}" class=" img-fluid mx-auto d-block shadow"
+                 style="width: 400px; height: 300px; object-fit: cover; border-radius: 30px;">
+            <div class="countdown-timer text-center">
+                <h3>🎉{{ festival.name }}🎉</h3>
+                <p class="festival-description">{{ festival.description }}</p>
+                <h4 style="color: red;">Hurry! Only {{ festival.remaining_time }} days left!</h4>
+            </div>
+        </div>
+
+
+        <section class="festival-products mt-4">
+            <div class="container">
+                <h2 class="text-center">Shop {{ festival.name }} Specials</h2>
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-2 row-cols-xl-6 justify-content-center">
+                    {% endif %}
+                    {% if festival_products %}
+                        {% for product in festival_products|slice:":6" %}
+                        
+                        <div class="col mb-5">
+                            <div class="card h-100">
+                                <!-- Product image-->
+                                <img class="card-img-top" src="{{ product.image.url }}" alt="..." />
+                                <!-- Product details-->
+                                <div class="card-body p-4">
+                                    <div class="text-center">
+                                        <!-- Product name-->
+                                        <h5 class="fw-bolder">{{ product.name }}</h5>
+                                        <h3 class="fw-bolder">{{ product.category }}</h3>
+                                        <!-- Product price-->
+                                        <p>
+                                            {% if product.sale_price %}
+                                                <del>${{ product.price }}</del> <strong>${{ product.sale_price }}</strong>
+                                            {% else %}
+                                                ${{ product.price }}
+                                            {% endif %}
+                                        </p>
+                                        <br>
+                                        <p class="mt-2">
+                                            <strong>Seller:</strong> {{ product.created_by.username }}<br>
+                                            <strong>City:</strong> {{ product.created_by.profile.city|default:"N/A" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- Product actions-->
+                                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                    <div class="text-center">
+                                        <div class="d-inline-flex gap-3">
+                                            <!-- Send Enquiry Button -->
+                                            {% if user.is_authenticated %}
+                                                <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark btn-sm mt-auto">Send Enquiry</a>
+                                            {% else %}
+                                                <button class="btn btn-outline-dark btn-sm mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                                            {% endif %}
+                                
+                                            <!-- View Number Button -->
+                                           
+                                                <a class="btn btn-outline-dark btn-sm mt-auto" href="{% url 'product' product.id %}">
+                                                    View Number
+                                                </a>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </section>
+    <!-- cities filter section -->
+
+    <section id="locations" class="container">
+        {% if all_cities %}
+            <div id="cityCarousel" class="carousel slide" data-bs-ride="carousel" style="color: black;">
+                <div class="carousel-inner">
+                    {% for city in all_cities|slice:":6" %}
+                        {% if city %}
+                            {% if forloop.counter0|divisibleby:3 %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <div class="row">
+                            {% endif %}
+        
+                            <div class="col-md-4 mb-4">
+                                <div class="card city-card">
+                                    <a href="{% url 'cityfilter' city.id %}">
+                                        <div class="city-image-container">
+                                            <!-- Check if image exists, if not show a placeholder -->
+                                            {% if city.image %}
+                                                <img src="{{ city.image.url }}" class="city-image card-img-top" alt="{{ city.name }}">
+                                            {% else %}
+                                                <img src="{% static 'images/default_city.jpg' %}" class="city-image card-img-top" alt="Default City Image">
+                                            {% endif %}
+                                            <div class="city-name-overlay">{{ city.name }}</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+        
+                            {% if forloop.counter|divisibleby:3 or forloop.last %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+        
+                <button class="carousel-control-prev" type="button" data-bs-target="#cityCarousel" data-bs-slide="prev" style="background: linear-gradient(to right, black, yellow); height: 50px; width: 50px; margin-top: 7.8%; border-radius: 50%;">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#cityCarousel" data-bs-slide="next" style="background: linear-gradient(to right, black, yellow); height: 50px; width: 50px; margin-top: 7.8%; border-radius: 50%;">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        {% else %}
+            <p>No cities available at the moment.</p>
+        {% endif %}
+        
+    </section>
+    
+    
+    
+    <!-- that code for pop error without login check view number -->
+    <!--  -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <style>
+
+        .sidebar {
+            background-color: rgb(250, 250, 250);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 60px; /* Width when hidden */
+            transition: width .3s ease;
+            z-index: 10000;
+        }
+
+
+        .sidebar:hover {
+            width: 200px; /* Width when hovered */
+        }
+        .sidebar:hover  .categories-list{
+            display: block;
+        }
+        .sidebar:hover  .icon{
+            display: none;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+            display: block;
+        }
+
+
+        .categories-list {
+            display: none;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-top: 15px;
+        }
+
+        .category-item {
+            position: relative;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            /* position: relative; */
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sidebar-icon {
+            width: 40px; /* Size of the category image */
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .category-image {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .subcategory-menu {
+            display: none;
+            position: absolute;
+            left: 100%; /* Aligns to the right of the sidebar */
+            top: 0;
+            background-color: rgba(243, 243, 243, 0.9);
+            color: black;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            z-index: 1000;
+            width: 200px; /* Width of the subcategory menu */
+        }
+
+        .category-item:hover .subcategory-menu {
+            display: block;
+        }
+
+        .subcategory-menu a {
+            color: black;
+            text-decoration: none;
+            display: block;
+            padding: 5px 0;
+        }
+
+        .subcategory-menu a:hover {
+            text-decoration: underline;
+        }
+
+        .categories-sidebar {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .category-item a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .category-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .subcategory-menu {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 200px;
+        }
+
+        .subcategory-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .subcategory-menu li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .subcategory-menu li a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .subcategory-menu li:hover {
+            background-color: #f8f9fa;
+        }
+
+        .category-item:hover .subcategory-menu {
+            display: block;
+        }
+        .categories-sidebar h4 {
+        margin-bottom: 15px;
+        font-size: 1.25rem;
+        color: #333;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        }
+        .categories-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .all-categories {
+        padding: 10px;
+        border-bottom: 1px solid #ddd; /* Separator line */
+        text-align: center;
+
+
+    }
+
+    .all-categories a {
+        text-decoration: none;
+        color: black;
+        font-weight: bold;
+
+    }
+
+    .all-categories:hover a{
+        background-color: #e9ecef; /* Slight hover effect */
+        color: #333;
+
+    }
+
+    .category-item {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .subcategory-menu {
+
+        display: none;
+        position: absolute;
+        left: 100%;
+        top: 0;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        z-index: 1000;
+        width: 200px;
+    }
+
+    .category-item:hover .subcategory-menu {
+        display: block;
+    }
+    .season-section {
+        margin-bottom: 50px;
+    }
+
+    .season-section h2 {
+        margin-bottom: 30px;
+        color: #343a40;
+    }
+
+    .festival-description{
+        display: -webkit-box;
+
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 4.5rem;
+        max-width: 80rem;
+        line-height: 1.5rem;
+        margin: auto    ;
+    }
+    /* For festival attraction */
+    /* Center the div */
+    .center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    /* Add glowing and blinking effect */
+    .glowing-blink {
+        font-size: 1.5rem;
+        padding: 10px 20px;
+        background-color: #ff9900; /* Change to a bright color */
+        color: #000;
+        border: 2px solid #ff9900; /* Change border color to match background */
+        border-radius: 30px;
+        animation: glowing 1.5s infinite alternate, blinking 1s infinite step-start;
+    }
+
+    /* Glowing effect */
+    @keyframes glowing {
+        0% {
+            box-shadow: 0 0 5px red, 0 0 10px #ff9900, 0 0 15px #ff9900;
+            text-shadow: 0 0 5px #ff9900, 0 0 10px red;
+        }
+        100% {
+            box-shadow: 0 0 20px #ff9900, 0 0 30px #ff9900, 0 0 40px #ff9900;
+            text-shadow: 0 0 20px #ff9900, 0 0 30px #ff9900;
+        }
+    }
+
+    /* Blinking effect */
+    @keyframes blinking {
+        0% {
+            opacity: 2;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    /* city section */
+    .city-image-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 250px;  /* Set a fixed height for consistent image sizes */
+}
+
+.city-image {
+    width: 100%;
+    height: 100%;  /* Ensure the image fills the container's height */
+    object-fit: cover;  /* This ensures the image covers the area without stretching/distortion */
+    transition: all 0.3s ease;
+}
+
+.city-name-overlay {
+    position: absolute;
+    bottom: 10px; /* Place in the corner */
+    left: 10px;   /* Adjust the corner position */
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Add a subtle shadow for readability */
+    opacity: 0; /* Initially hidden */
+    transition: all 0.3s ease;
+}
+
+.city-image-container:hover .city-image {
+    filter: blur(4px);
+    transform: scale(1.05);
+}
+
+.city-image-container:hover .city-name-overlay {
+    opacity: 1;
+}
+
+
+
+
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryItems = document.querySelectorAll('.category-item');
+
+            categoryItems.forEach((item) => {
+                const subMenu = item.querySelector('.subcategory-menu');
+
+                item.addEventListener('mouseenter', () => {
+                    if (subMenu) {
+                        subMenu.style.display = 'block';
+                        subMenu.style.opacity = 0;
+                        setTimeout(() => {
+                            subMenu.style.opacity = 1;
+                            subMenu.style.transition = 'opacity 0.3s ease';
+                        }, 0);
+                    }
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    if (subMenu) {
+                        subMenu.style.opacity = 0;
+                        setTimeout(() => {
+                            subMenu.style.display = 'none';
+                        }, 300); // Matches the transition duration
+                    }
+                });
+            });
+        });
+
+
+
+
+    </script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Enquiry</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Send Enquiry</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <!-- Flash messages -->
+                <!-- {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %} -->
+
+                <!-- Product Details -->
+                {% if product %}
+                    <div class="mb-4">
+                        <h4>Product: {{ product.name }}</h4>
+                        <p>{{ product.description }}</p>
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                    </div>
+                {% else %}
+                    <p>Product details are not available.</p>
+                {% endif %}
+
+                <!-- Form Errors -->
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>There were some errors with your submission:</strong>
+                        <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- Enquiry Form -->
+                <form method="POST" action="{% url 'send_enquiry' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">  <!-- Ensure this line is here -->
+                    
+                    <div class="form-group">
+                        <label for="id_name">Your Name</label>
+                        {{ form.name|add_class:"form-control" }}
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="id_email">Your Email</label>
+                        {{ form.email|add_class:"form-control" }}
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="id_phone">Contact Number</label>
+                        {{ form.phone|add_class:"form-control" }}
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="id_message">Message</label>
+                        {{ form.message|add_class:"form-control" }}
+                    </div>
+                
+                    <button type="submit" class="btn btn-primary">Send Enquiry</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br><br>
+    <div class="row">
+        <!-- Product Details Section -->
+        <div class="col-md-8">
+            <!-- Product Image and Small Description -->
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="Product Image">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <center>
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text">{{ product.description }}</p>
+                                {% if product.on_sale %}
+                                    <span class="text-muted text-decoration-line-through">${{ product.price }}</span>
+                                    <strong>${{ product.sale_price }}</strong>
+                                {% else %}
+                                    <strong>${{ product.price }}</strong>
+                                {% endif %}
+                                <br><br>
+                                <div class="d-flex justify-content-center">
+                                    {% if current_user.is_seller %}
+                                        {% if is_owner %}
+                                            <a href="{% url 'delete_product' product.id %}" class="btn btn-danger me-2">Delete</a>
+                                        {% endif %}
+                                    {% endif %}
+                                    <a href="{% url 'home' %}" class="btn btn-secondary me-2" >Home</a>
+                                    {% if user.is_authenticated %}
+                                        <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark mt-auto">Send Enquiry</a>
+                                    {% else %}
+                                        <button class="btn btn-outline-dark mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                                    {% endif %}
+                                </div>
+                            </center>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Specifications -->
+            <div class="card mb-4">
+                <div class="card-header bg-light text-center">
+                    <h5 class="card-title mb-0">Product Specifications</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Default Specifications -->
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Category</strong>
+                            <span>{{ product.category.name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Price</strong>
+                            <span>${{ product.price }}</span>
+                        </li>
+                        {% if product.on_sale %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Sale Price</strong>
+                            <span>${{ product.sale_price }}</span>
+                        </li>
+                        {% endif %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Description</strong>
+                            <span>{{ product.description|default:"No description provided." }}</span>
+                        </li>
+                    </ul>
+
+                    <!-- Custom Specifications Section -->
+                    {% if product.attributes.exists %}
+                        <h6>Custom Specifications:</h6>
+                        <ul class="list-group">
+                            {% for attribute in product.attributes.all %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>{{ attribute.attribute_name }}</strong>
+                                    <span>{{ attribute.attribute_value }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Business Info Section -->
+            <div class="card">
+                <div class="card-header bg-light text-center">
+                    <h5 class="card-title mb-0">Business Info</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Company Description:</strong> {{ product.created_by.profile.company_details|default:"No company description provided." }}</p>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <i class="bi bi-bag text-success fs-2"></i>
+                            <p class="mb-1"><strong>Business Type</strong></p>
+                            {% if product.created_by.profile.business_type.exists %}
+                                <p>
+                                    {% for business in product.created_by.profile.business_type.all %}
+                                        {{ business.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                            {% else %}
+                                <p>N/A</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="bi bi-calendar-event text-primary fs-2"></i>
+                            <p class="mb-1"><strong>Establishment</strong></p>
+                            <p>{{ product.created_by.profile.establishment|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="bi bi-person-lines-fill text-info fs-2"></i>
+                            <p class="mb-1"><strong>Employee Count</strong></p>
+                            <p>{{ product.created_by.profile.employee_count|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="bi bi-calendar-check text-warning fs-2"></i>
+                            <p class="mb-1"><strong>Working Days</strong></p>
+                            <p>{{ product.created_by.profile.work_days|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="bi bi-file-earmark-text text-danger fs-2"></i>
+                            <p class="mb-1"><strong>GST NO</strong></p>
+                            <p>{{ product.created_by.profile.GST_number|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Details Box (Right Side) -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light text-center">
+                    <h5 class="card-title mb-0">Seller Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="avatar rounded-circle bg-secondary text-white d-inline-block" style="width: 50px; height: 50px; line-height: 50px;">
+                            {{ product.created_by.username|default:"N/A"|slice:":1" }}
+                        </div>
+                        <h6 class="mt-2">{{ product.created_by.username|default:"N/A" }}</h6>
+                        <p class="text-muted small">GST: {{ product.created_by.profile.GST_number|default:"N/A" }}</p>
+                    </div>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-shield-check text-success me-2"></i> Trusted Seller
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-people text-primary me-2"></i> Proprietor: {{ product.created_by.first_name|default:"" }} {{ product.created_by.last_name|default:"N/A" }}
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-calendar-check text-secondary me-2"></i> Member Since: 2 Years (Static for now)
+                        </li>
+                        <li>
+                            <i class="bi bi-geo-alt text-danger me-2"></i> Address: {{ product.created_by.profile.address1|default:"N/A" }}, {{ product.created_by.profile.address2|default:"N/A" }}
+                        </li>
+                    </ul>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        {% if user.is_authenticated %}
+                            <a href="tel:{{ product.created_by.profile.phone|default:'' }}" class="btn btn-outline-dark mt-auto">Number: {{ product.created_by.profile.phone|default:"N/A" }}</a>
+                        {% else %}
+                            <button class="btn btn-outline-dark mt-auto" onclick="showLoginPopup()">View Number</button>
+                        {% endif %}
+                        
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'send_enquiry' %}?product_id={{ product.id }}" class="btn btn-outline-dark mt-auto">Send Enquiry</a>
+                        {% else %}
+                            <button class="btn btn-outline-dark mt-auto" onclick="showLoginPopup()">Send Enquiry</button>
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br><br><br><br><br>
+
+    <section class="seller">
+        <h5 class="text-center mb-3" style="background-color: black; color: white;">More from this Seller</h5>
+        <div class="row">
+            {% for seller_product in same_seller_products|slice:":8" %}
+            <div class="col-6 col-md-2">
+                <div class="card h-100">
+                    <img src="{{ seller_product.image.url }}" class="card-img-top" alt="{{ seller_product.name }}">
+                    <div class="card-body p-4">
+                        <h6 class="card-title text-truncate">{{ seller_product.name }}</h6>
+                        <p class="card-text">
+                            <small class="text-muted">Category: {{ seller_product.category.name }}</small><br>
+                            <small class="text-muted">Seller: {{ seller_product.created_by.username }}</small>
+                        </p>
+                        <p class="card-price">
+                            
+                                <strong>${{ seller_product.price }}</strong>
+                            
+                        </p>
+                        <a href="{% url 'product' seller_product.id %}" class="btn btn-outline-dark mt-auto">View</a>
+                        
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    
+    <section class="smcategory">
+        <h5 class="text-center mb-3" style="background-color: black; color: white;">Products in the Same Category</h5>
+        <div class="row">
+            {% for category_product in same_category_products|slice:":12" %}
+            <div class="col-6 col-md-2">
+                <div class="card h-100">
+                    <img src="{{ category_product.image.url }}" class="card-img-top" alt="{{ category_product.name }}">
+                    <div class="card-body">
+                        <h6 class="card-title text-truncate">{{ category_product.name }}</h6>
+                        <p class="card-text">
+                            <small class="text-muted">Category: {{ category_product.category.name }}</small><br>
+                            <small class="text-muted">Seller: {{ category_product.created_by.username }}</small>
+                        </p>
+                        <p class="card-price">
+                           
+                                <strong>${{ category_product.price }}</strong>
+                            
+                        </p>
+                        <a href="{% url 'product' category_product.id %}" class="btn btn-outline-dark mt-auto">View</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

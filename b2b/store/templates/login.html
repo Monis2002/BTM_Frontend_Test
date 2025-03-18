@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Log In</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Let's login to your BTM account</p>
+        </div>
+    </div>
+</header>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h3 class="text-center mb-4">Welcome Back</h3>
+                    <form method="POST" action="{% url 'login' %}">
+                        {% csrf_token %}
+
+                        <!-- Username Field -->
+                        <div class="mb-3">
+                            <label for="staticEmail2" class="form-label">Username</label>
+                            <input type="text" name="username" id="staticEmail2" class="form-control" placeholder="Enter your username" required>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-3 position-relative">
+                            <label for="inputPassword2" class="form-label">Password</label>
+                            <input type="password" name="password" id="inputPassword2" class="form-control" placeholder="Enter your password" required>
+                            <!-- Eye Icon -->
+                            <i class="bi bi-eye-slash position-absolute" id="togglePassword" style="right: 10px; top: 35px; cursor: pointer; font-size: 1.5rem; transition: all 0.3s ease;"></i>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                        </div>
+                    </form>
+
+                    <!-- Forgot Password Link -->
+                    <div class="text-center mt-4">
+                        <a href="{% url 'forgot_password' %}" class="text-decoration-none">Forgot your password?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Bootstrap Icons CDN and JavaScript -->
+
+<!-- Bootstrap Icons CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<script>
+    // Wait for the page to load completely
+    document.addEventListener("DOMContentLoaded", function() {
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("inputPassword2");
+
+        // Ensure both elements are available
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener("click", function() {
+                // Toggle the password visibility
+                const type = passwordInput.type === "password" ? "text" : "password";
+                passwordInput.type = type;
+
+                // Toggle the eye icon class
+                if (passwordInput.type === "password") {
+                    togglePassword.classList.replace("bi-eye", "bi-eye-slash");
+                } else {
+                    togglePassword.classList.replace("bi-eye-slash", "bi-eye");
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
