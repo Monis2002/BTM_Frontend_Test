@@ -29,13 +29,6 @@ ALLOWED_HOSTS = []
 import firebase_admin
 from firebase_admin import credentials
 
-#Gmail Settings
-EMAIL_HOST='smtp.gmail.com'
-EMAIL_HOST_USER='kunalprajapat530@gmail.com'
-EMAIL_HOST_PASSWORD='tbux xppr yroa bohg'
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_BACKENDS='django.core.mail.backends.smtp.EmailBackends'
 
 
 INSTALLED_APPS = [
